@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:WindowedApplication xmlns:mx="http://www.adobe.com/2006/mxml" layout="absolute" width="800" height="600" title="Text Editor" applicationComplete="onAppInit();" >
+	<mx:Script>
+		<![CDATA[
+			import flash.events.KeyboardEvent;
+			import flash.filesystem.File;
+			import flash.filesystem.FileMode;
+			import flash.filesystem.FileStream;
+			import flash.net.FileFilter;
+			import mx.controls.Alert;
+			import mx.events.CloseEvent;
+			import mx.events.MenuEvent;
+			
+			private var browserHolder:File;
+			private var currentFile:File;
+			private var defaultFile:File;
+			private var fileStream:FileStream;
+			private var fileToOpen:File;
+			private var fileToSave:File;
+			private var textChanged:Boolean;
+			
+			public function onAppInit():void 
+			{
+				title = "Text Editor - Untitled.txt";
+				defaultFile = File.documentsDirectory.resolvePath("untitled.txt");
+				textChanged = false;
+				application.addEventListener(KeyboardEvent.KEY_UP, onKeyUp);
+			}
+			
+			private function onKeyUp(event:KeyboardEvent):void 
+			{
+				if (event.keyCode == Keyboard.TAB && !event.altKey && !event.shiftKey && !event.ctrlKey) {
+					var sb:Number = fileTextArea.selectionBeginIndex;
+					var se:Number = fileTextArea.selectionEndIndex;
+					var firstPart:String = fileTextArea.text.slice(0, sb);
+					var secondPart:String = fileTextArea.text.slice(se);
+					fileTextArea.text = firstPart + "\t" + secondPart; 
+				}
+			}
+
+			private function onAlertClose(event:CloseEvent):void
+			{
+				switch (event.detail) {
+				case Alert.YES:
+					saveFile();
+					break;
+				case Alert.NO:
+					textChanged = false;
+					newDocument();
+					break;
+				}
+			}
+			
+			private function onFileOpenSelect(event:Event):void
+			{
+				currentFile = event.target as File;
+				openFile();
+			}
+			
+			private function onFileSaveSelect(event:Event):void
+			{
+				currentFile = event.target as File;
+				textChanged = false;
+				title = "Text Editor - " + currentFile.name;
+				saveFile();
+			}
+			
+			private function onItemClick(event:MenuEvent):void
+			{
+				switch (event.label) {
+				case "New":
+					newDocument();
+					break;
+				case "Open":
+					promptUserToOpenFile();
+					break;
+				case "Save":
+					saveFile();
+					break;
+				case "Save As...":
+					promptUserToSaveFile();
+					break;
+				}
+			}
+			
+			private function onOpenComplete(event:Event):void
+			{
+				var theText:String = fileStream.readUTFBytes(fileStream.bytesAvailable);
+				var lineEndPattern:RegExp = new RegExp(File.lineEnding, "g");
+				
+				fileTextArea.text = theText.replace(lineEndPattern, "\n");
+				textChanged = false;
+				title = "Text Editor - " + currentFile.name;
+				fileStream.close();
+			}
+			
+			private function onReadIOError(event:IOErrorEvent):void
+			{
+				Alert.show("The specified file cannot be opened." , "Error", Alert.OK, this);
+			}
+			
+			private function onWriteIOError(event:IOErrorEvent):void
+			{
+				Alert.show("The specified file cannot be saved.", "Error", Alert.OK, this);
+			}
+			
+			private function openFile():void 
+			{
+				if (fileStream != null) {
+					fileStream.close();
+				}
+				fileStream = new FileStream();
+				fileStream.addEventListener(Event.COMPLETE, onOpenComplete);
+				fileStream.addEventListener(IOErrorEvent.IO_ERROR, onReadIOError);
+				fileStream.openAsync(currentFile, FileMode.READ);				
+			}
+			
+			private function saveFile():void 
+			{
+				if (currentFile) {
+					if (fileStream != null) {
+						fileStream.close();
+					}
+					
+					var theText:String = fileTextArea.text;
+					theText = theText.replace(/\r/g, "\n");
+					theText = theText.replace(/\n/g, File.lineEnding);
+					
+					fileStream = new FileStream();
+					fileStream.openAsync(currentFile, FileMode.WRITE);
+					fileStream.addEventListener(IOErrorEvent.IO_ERROR, onWriteIOError);
+					fileStream.writeUTFBytes(theText);
+					fileStream.close();
+					textChanged = false;
+				} else {
+					promptUserToSaveFile();
+				}
+			}
+
+			private function promptUserToOpenFile():void
+			{
+				fileToOpen = (currentFile != null) ? currentFile.parent :
+				File.documentsDirectory;
+				fileToOpen.removeEventListener(Event.SELECT, onFileSaveSelect);
+				var textFilter:FileFilter = new FileFilter("Text", "*.as;*.css;*.html;*.txt;*.xml");
+				var allFilter:FileFilter = new FileFilter("All Files", "*.*");
+				try {
+					fileToOpen.browseForOpen("Open", [textFilter, allFilter]);
+					fileToOpen.addEventListener(Event.SELECT, onFileOpenSelect);
+				} catch (error:Error) {
+					trace("Failed:", error.message);
+				}
+			}
+			
+			private function promptUserToSaveFile():void
+			{
+				fileToSave = (currentFile) ? currentFile : defaultFile;
+				fileToSave.removeEventListener(Event.SELECT, onFileOpenSelect);
+				var typeFilter:FileFilter = new FileFilter("Text", "*.as;*.css;*.html;*.txt;*.xml");
+				try {
+					fileToSave.browseForSave("Save");
+					fileToSave.addEventListener(Event.SELECT, onFileSaveSelect);
+				} catch (error:Error) {
+					trace("Failed:", error.message);
+				}
+			}
+			
+			private function newDocument():void
+			{
+				if (textChanged) {
+					Alert.show("The text in your current document has changed.\nDo you want to save your changes?", "Alert", (Alert.YES | Alert.NO | Alert.CANCEL), this, onAlertClose);
+				} else {
+					currentFile = undefined;
+					textChanged = false;
+					fileTextArea.text = "";
+				}
+			}
+		]]>
+	</mx:Script>
+	<mx:MenuBar id="myMenuBar" labelField="@label" left="0" top="0" right="0" tabEnabled="false" itemClick="onItemClick(event);" >
+		<mx:XMLList>
+			<menuitem label="File">				
+				<menuitem label="New"/>
+				<menuitem label="Open"/>
+				<menuitem label="Save"/>
+				<menuitem label="Save As..."/>
+			</menuitem>			
+		</mx:XMLList>
+	</mx:MenuBar>
+	<mx:TextArea id="fileTextArea" top="21" left="0" right="0" bottom="0" focusThickness="0" fontFamily="Arial" fontSize="14" tabEnabled="false" change="textChanged=true;" />	
+</mx:WindowedApplication>

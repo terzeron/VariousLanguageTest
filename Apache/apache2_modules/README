@@ -1,0 +1,44 @@
+Apache 2.0 Module Developer Tutorials
+
+Introduction
+
+	I started this tutorial because while I was trying to
+	learn module development I could not find any "from
+	scratch" tutorials on module writing.  Documentation
+	does exist, but I could not find any that showed how
+	to start a module from nothing.
+
+	So, here it is - everything I discovered and learnt
+	while starting down the module road.
+
+Warning
+
+	I consider myself a decent programmer, but my history
+	with C is limited so take everything you see here with
+	a grain of salt.  I promise that I have committed a
+	cardinal sin here somewhere and a Slashdot troll is
+	just waiting to point out!  I make no apologies -
+	I just hope that I've saved someone half an hour by
+	putting this out.  Cheers!
+
+Where To?
+
+	See the following subdirectories for each of the
+	tutorials.  I've decided that each tutorial will be
+	free-standing and immutable once I've completed it,
+	for no other reason than I want to document not just 
+	the "how" to do something, but also the "how *not*"
+	to do something.  So, as new tutorials are written I
+	want to refer to previous tutorials so the reader can
+	compare the content and therefore come away with more
+	knowlegdge.
+
+	tut1			A barebones module that does nothing except
+						write a silly message to stderr (meaning
+						error_log) when a GET request is processed.
+						
+						The reason this module is so trivial is
+						because most of the tutorial focusses on
+						the build environment and the logistics of
+						compiling a kernel and getting it loaded
+						into Apache.

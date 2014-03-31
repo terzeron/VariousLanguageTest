@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# update the local copy
+cvs update -d 
+
+# update the tar.gz file.
+rm tutorials.tar.gz
+OUT_FILE=`pwd`/tutorials.tar
+TEMP_DIR=/tmp/$$-export
+mkdir $TEMP_DIR
+cd $TEMP_DIR
+cvs export -r HEAD tutorials 2>&1 >/dev/null
+cd tutorials
+tar cf $OUT_FILE * >/dev/null
+gzip $OUT_FILE
+rm -rf $TEMP_DIR

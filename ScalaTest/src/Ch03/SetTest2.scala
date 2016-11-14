@@ -1,6 +1,3 @@
-/**
-  * Created by terzeron on 2016. 11. 7..
-  */
 import scala.collection.mutable.Set
 
 object SetTest2 {

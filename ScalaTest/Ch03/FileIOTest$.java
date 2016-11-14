@@ -1,10 +1,3 @@
-/**
-  * Created by terzeron on 2016. 11. 7..
-  */
-
-import scala.io.Source
-
-
 object FileIOTest {
   def widthOfLength(s: String) = s.length.toString.length
 

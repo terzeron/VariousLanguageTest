@@ -2,6 +2,7 @@ class Rational(n: Int, d: Int) {
   require(d != 0)
 
   // 멤버변수
+  // g는 비공개 필드
   private val g: Int = gcd(n.abs, d.abs)
   val _n = n / g
   val _d = d / g

@@ -1,0 +1,255 @@
+<html>
+<head>
+	<link rel="stylesheet" href="http://threebit.net/style.css"/>
+
+	<!-- for IE -->
+	<link rel="SHORTCUT ICON" HREF="http://threebit.net/logos/threebit-icon.ico">
+
+	<!-- for Mozilla -->
+	<link rel="ICON" HREF="http://threebit.net/logos/threebit-icon.ico">
+
+</head>
+<body>
+
+<table cellspacing="0" width="100%" style="border: solid 1px #000000;">
+  <tr>
+    <td align="left">
+			<a href="http://threebit.net"><img alt="threebit.NET" border="0" 
+				src="http://threebit.net/logos/threebit.gif"></a>
+    </td>
+    <td width="100%" align="center" bgcolor="#f0f0f0" valign="center">
+			<h1>A Nested Set Implementation in Java and PostgreSQL</h1>
+    </td>
+  </tr>
+</table>
+
+<p>
+
+<p style="border: 1px solid #000000; padding: 10px; background: #fefefe;">
+<b>Note:</b> This is a work in progress.  The code works but may be unclear.  I am working on it. 
+</p>
+
+<p>
+
+	This tutorial intends to give the reader: 
+	<ul>
+		<li> The <a href="#m">motivations</a> to use the Nested Set structure.</li>
+		<li> The <a href="#t">theory</a> behind the Nested Set structure.</li>
+		<li> A possible <a href="#si">schema</a> to implement the Nested Set. </li>
+		<li> A set of <a href="#ji">java classes</a> to allow the Nested Set to be used. </li>
+	</ul> 
+
+<p>
+$Id: tutorial1.html,v 1.6 2002/10/29 18:28:14 shawn Exp $
+<br>
+
+
+<ol>
+	<li><h2>Preparation</h2>
+
+	You're gonna want to have a JVM and Postgres or MySQL or some other RDBMS installed to do this.
+	If you are using Oracle or DB2 you should use their built in Adjencency list operators instead. 
+
+	<p>
+
+	<li><h2 id="m">Motivation</h2>
+		
+	The idea behind this project came from an article by Joe Celko in his excellent book, SQL for
+	Smarties.  
+
+	<p/> 
+	<b>What is a Nested Set?</b><br/> 
+	The Nested Set is an adjacent list realized in SQL as a tree.  For a good slide show on the
+	Nested Set theory check this <a
+		href="http://research.calacademy.org/taf/proceedings/ballew/sld011.htm">site</a> out. 
+
+	<p/> 
+	<b>Why bother with a Nested Set?</b><br/> 
+	Imagine a filesystem program that stores its data in a Relational Database Table.  Presumably,
+	this table would have at least two columns, one being the unique id of the item, and the second
+	being the id of the object's parent.  Additionally, the <b>id</b> is usually the primary key and
+	the <b>parentId</b> is referentially constrained to values in the set of <b>id</b>
+	<p/> 
+	<img src="nodes.jpg"/>
+	<p/> 
+	The top of the tree is called the root. The nodes of the tree that have no subtrees beneath them are
+	called the leaf nodes. The descendants, or children, of a parent node are every node at all lower
+	levels in the subtree that has the parent node as its root.  In the table the data looks like
+	this:
+	<pre>
+id    parentId
+______________
+1     null | 0
+2         1
+3         1
+4         2
+5         2
+6         3
+7         2
+8         7
+</pre>
+
+	<p/> 
+	This approach is a pretty standard list linking used in Online Transaction Processing type
+	databases.  It   works pretty well, and doesn't require a lot of integrety checks.  Make sure the
+	parentId points to a valid id and you're set.  Consider again the filesystem program.   It would
+	have the following use-cases.  
+	<p/> 
+	<ol>
+		<li>User browses a node.</li>  
+		<li>User adds a node below an existing node.</li>  
+		<li>User deletes a node and all of its children.</li>  
+		<li>User moves a node to beneath another node.</li>  
+		<li>User searches all nodes beneath a single node.</li>  
+	</ol>
+	<p/> 
+	The Linked-List approach works great for <b>-1-</b>, cause all you have to do is the O(1) query: 
+	<pre>SELECT * FROM table WHERE parentId = node;</pre> 
+
+	And the Linked-List approach works well for use-case <b>-2-</b>, as all you have to do is
+	something like this, again an O(1) statement: 
+	<pre>INSERT INTO table ( id, parentId ) VALUES ( newId, NODE );</pre> 
+
+	But things just totally fall apart in use case <b>-3-</b> there is no easy or efficient way to 	
+	implement this using the Linked list.  Most solutions for this problem drop into a stored
+	procedure or use a middle tier using some iterative loop or a stack.  The farther down the tree
+	you have to go, the longer the statement runs.  
+
+	<p/> 
+	Most solutions to this problem are unelegent hacks that take too long and often leave the RDBMS
+	integrity in a vulnrable state while its running.   One elegent way to do this still using the
+	linked list approach is to use in a recursive trigger like <a href="recurseTrigger.sql.html">this</a> 
+	to handle the parent/child stuff.  Its still not really that fast, but it does keep all the logic
+	in the RDBMS instead of in an outside method. 
+
+	<p/> 
+	For use case <b>-4-</b> you can use: <pre>UPDATE table SET parentId = NODE;</pre> which is also
+	very quick and easy. 
+	<p/>
+	However, you're fucked again for use case <b>-5-</b>.  This is a big problem, as most users expect to
+	get search information back quickly.  If you are running some sort of EIS system where people are
+	constantly searching through deeply nested set of relational information you will soon be fired.
+	This means we have to find an O(x) or quicker algorithm, or rethink the data schema.   As very
+	few DBA's have the luxury of rewriting their schemas on a whim, you have to think up a quick and
+	easy way to improve the performace of the system without messing up your legacy stuff.  This is
+	why you want to use the Nested Set Model. 
+
+	<p/>
+	<li><h2 id="t">Theory</h2>
+	<b>How do you use Nested Sets? </b><br/> 
+	Now, in the above diagram the data was shown as a tree of nodes.  You can also think  
+	the data as a <b>set</b>.  Which, is actually a lot more SQL friendly as SQL is a set-based
+	language.  Using the same table as about imagine a group of encompassing sets like this:  
+	<br/> 
+	<img src="set.jpg" height="200" width="300" title="Set"/>
+	<p/> 
+	<p/> 
+	You see that the root, node number 1 is the largest set and contains every other node in the
+	system.  So, how do we represent this in SQL?  We do it using a number line where each set is
+	given a left and right hand bounds.  
+	<p/>
+	<img src="line.jpg" height="200" width="500" title="Set"/>
+	<p/> 
+	For example, below you can see the following: 
+	<ul> 
+		<li> The larger the range between left and right the more children the node has.</li>
+		<li> Right - Left is always negative. </li>
+		<li> MAX(Right)/2 == MAX(*) </li>
+	</ul>
+	Now, that being said the selection of all nodes in an arbitrarily deep nest is done very simply.
+	Generally, this query will be used to feed some other query's in clause or as a constraint for a
+	DML statement.
+	<pre>
+SELECT 
+  n0.nid
+FROM 
+  NestedSet n0,
+  NestedSet n1
+WHERE 
+    n1.nid = 0
+AND	n0.lft BETWEEN n1.lft AND n1.rft;
+</pre>
+	<p/>
+	<li><h2 id="si">SQL Implementation</h2>
+	The Nested Set implementation will most likely be used as an indexing scheme to provide better
+	access times for an existing system.  The nested set table may o
+<pre>
+Table "nestedset"
+ Column  |  Type  | Notes  
+---------+--------+-----------
+nid      | bigint | Primary Key 
+parentId | bigint | Foreign Key (nestedSet.nid)
+rft      | bigint | Unique Key 
+lft      | bigint | Unique Key 
+</pre>
+	<b> </b><br/> 
+	<p/>
+
+	<b>What's the downside to using Nested Sets? </b><br/> 
+	<ul>
+		<li>
+		Increased integrity concerns.  Longer and more complex full table writes on each node
+		mutation leave time for the 
+		</li>
+		<li>Heavy index maintainance cost on insert and delete. </li>
+	</ul>
+	<p/>
+
+	<li><h2 id="ji">Java Implementation</h2>
+	<b>Introduction</b><br/> 
+	I am going to present the Java Implementation as schema independent as possible, to the end, all
+	the returned values from the imaginary tables in the example will be done a Lists of Maps where
+	each item in the List corresponds to a row in the resultset, and each row in the Map corresponds
+	to a column with a discrete datatype.   This is pretty portable.   
+	<p/> 
+
+	<b>Prime the NestedSet</b><br/> 
+	Before you can use the NestedSet schema, you need to determin the scope of it.  That is, how many
+	tables will be represented by the nested set, and do they all share a unique namespace?
+	<p/> 
+ <pre> 
+// First we need to assure the language is loaded.
+CREATE FUNCTION plpgsql_call_handler () RETURNS OPAQUE AS '/usr/local/pgsql/lib/plpgsql' LANGUAGE C; 
+CREATE TRUSTED LANGUAGE plpgsql HANDLER plpgsql_call_handler; 
+
+// Now create the functions you'll need for operation.      
+CREATE OR REPLACE FUNCTION closeGap(BIGINT) RETURNS INTEGER AS '  
+DECLARE r RECORD;  
+BEGIN  
+  SELECT INTO r * FROM nestedSet WHERE nid = $1;    
+  UPDATE nestedSet  
+  SET  
+  lft = CASE  
+    WHEN lft > r.lft  
+    THEN lft - (r.rft - r.lft 1 )  
+  ELSE lft END,  
+  rft = CASE  
+    WHEN rft > r.lft  
+    THEN rft - (r.rft - r.lft 1 )  
+  ELSE rft END;  
+RETURN 1;  
+END;  
+' LANGUAGE 'plpgsql';  
+CREATE OR REPLACE FUNCTION deleteSubtree(BIGINT) RETURNS INTEGER AS '  
+DECLARE r RECORD ;  
+BEGIN  
+  SELECT INTO r * FROM nestedSet WHERE nid = $1;  
+  DELETE FROM NestedSet  
+  WHERE lft BETWEEN r.lft AND r.rft;  
+  RETURN 1;  
+END;  
+' LANGUAGE 'plpgsql'; 
+</pre>
+
+	<li><h2 id="cpi">C++ Implementation</h2>
+	to be delivered
+
+	<li><h2 id="csi">C# Implementation</h2>
+	to be delivered
+
+	<li><h2 id="con">Conclusion</h2>
+	to be delivered
+
+	</ul>
+</body>
+</html>

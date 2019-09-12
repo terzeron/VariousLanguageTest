@@ -1,0 +1,89 @@
+<html>
+<head>
+<title>/www/threebit.net/tutorials/nestedset/recurseTrigger.sql.html</title>
+<meta name="Generator" content="Vim/6.1">
+</head>
+<body bgcolor="#000000" text="#ffffff">
+<pre>
+<font color="#ffff00"> 1</font>  <font color="#8080ff">--  The ability to create recursive triggers is a new feature of SQL Server</font>
+<font color="#ffff00"> 2</font>  <font color="#8080ff">--  starting with version 7.0. This article contains a Transact-SQL script that</font>
+<font color="#ffff00"> 3</font>  <font color="#8080ff">--  demonstrates an example of using recursive triggers to create a parent/child</font>
+<font color="#ffff00"> 4</font>  <font color="#8080ff">--  self-joining relationship to store a directory tree and maintain a full path.</font>
+<font color="#ffff00"> 5</font>  <font color="#8080ff">--  This gives you the best of both worlds: great update capability of the</font>
+<font color="#ffff00"> 6</font>  <font color="#8080ff">--  parent/child relationship and the query performance in getting the full path. </font>
+<font color="#ffff00"> 7</font>  <font color="#8080ff">--</font>
+<font color="#ffff00"> 8</font>  sp_dboption <font color="#ff6060">'pubs'</font>, <font color="#ff6060">'recursive triggers'</font>, <font color="#ff40ff">TRUE</font>
+<font color="#ffff00"> 9</font>  GO
+<font color="#ffff00">10</font>
+<font color="#ffff00">11</font>  USE pubs
+<font color="#ffff00">12</font>  GO
+<font color="#ffff00">13</font>
+<font color="#ffff00">14</font>  <font color="#ffff00">DROP</font> <font color="#ff40ff">TABLE</font> tree
+<font color="#ffff00">15</font>  GO
+<font color="#ffff00">16</font>  <font color="#ffff00">CREATE</font> <font color="#ff40ff">TABLE</font> tree(id INT, pid INT <font color="#ff40ff">NULL</font>, name <font color="#00ff00">VARCHAR</font>(<font color="#ff6060">40</font>), fullname <font color="#00ff00">VARCHAR</font>(<font color="#ff6060">512</font>))
+<font color="#ffff00">17</font>  GO
+<font color="#ffff00">18</font>  <font color="#ffff00">INSERT</font> <font color="#ff40ff">INTO</font> tree <font color="#ff40ff">VALUES</font> (<font color="#ff6060">1</font>, <font color="#ff40ff">null</font>, <font color="#ff6060">'root'</font>    ,<font color="#ff6060">'root'</font>)
+<font color="#ffff00">19</font>  <font color="#ffff00">INSERT</font> <font color="#ff40ff">INTO</font> tree <font color="#ff40ff">VALUES</font> (<font color="#ff6060">2</font>, <font color="#ff6060">1</font>,    <font color="#ff6060">'x86'</font>     ,<font color="#ff6060">'root\x86'</font>)
+<font color="#ffff00">20</font>  <font color="#ffff00">INSERT</font> <font color="#ff40ff">INTO</font> tree <font color="#ff40ff">VALUES</font> (<font color="#ff6060">3</font>, <font color="#ff6060">2</font>,    <font color="#ff6060">'retail'</font>  ,<font color="#ff6060">'root\x86\retail'</font>)
+<font color="#ffff00">21</font>  <font color="#ffff00">INSERT</font> <font color="#ff40ff">INTO</font> tree <font color="#ff40ff">VALUES</font> (<font color="#ff6060">4</font>, <font color="#ff6060">3</font>,    <font color="#ff6060">'bin'</font>     ,<font color="#ff6060">'root\x86\retail\bin'</font>)
+<font color="#ffff00">22</font>  <font color="#ffff00">INSERT</font> <font color="#ff40ff">INTO</font> tree <font color="#ff40ff">VALUES</font> (<font color="#ff6060">5</font>, <font color="#ff6060">3</font>,    <font color="#ff6060">'include'</font> ,<font color="#ff6060">'root\x86\retail\include'</font>)
+<font color="#ffff00">23</font>  <font color="#ffff00">INSERT</font> <font color="#ff40ff">INTO</font> tree <font color="#ff40ff">VALUES</font> (<font color="#ff6060">6</font>, <font color="#ff6060">3</font>,    <font color="#ff6060">'lib'</font>     ,<font color="#ff6060">'root\x86\retail\lib'</font>)
+<font color="#ffff00">24</font>  <font color="#ffff00">INSERT</font> <font color="#ff40ff">INTO</font> tree <font color="#ff40ff">VALUES</font> (<font color="#ff6060">7</font>, <font color="#ff6060">5</font>,    <font color="#ff6060">'mfc'</font>     ,<font color="#ff6060">'root\x86\retail\include\mfc'</font>)
+<font color="#ffff00">25</font>  GO
+<font color="#ffff00">26</font>
+<font color="#ffff00">27</font>  <font color="#ffff00">CREATE</font> <font color="#ff40ff">TRIGGER</font> tree_trg_upd
+<font color="#ffff00">28</font>  <font color="#ff40ff">ON</font> tree
+<font color="#ffff00">29</font>  <font color="#ff40ff">FOR</font> <font color="#ffff00">UPDATE</font>
+<font color="#ffff00">30</font>  <font color="#ff40ff">AS</font>
+<font color="#ffff00">31</font>  <font color="#ff40ff">IF</font> (@@ROWCOUNT &gt; <font color="#ff6060">0</font>) <font color="#ff40ff">BEGIN</font>
+<font color="#ffff00">32</font>     <font color="#ff40ff">IF</font> (<font color="#ffff00">UPDATE</font> (name)) <font color="#ff40ff">BEGIN</font>
+<font color="#ffff00">33</font>        <font color="#ffff00">UPDATE</font> TREE
+<font color="#ffff00">34</font>        <font color="#ffff00">SET</font> TREE.fullname = CASE
+<font color="#ffff00">35</font>              WHEN PARENT.fullname <font color="#ff40ff">IS</font> <font color="#ffff00">NOT</font> <font color="#ff40ff">NULL</font>
+<font color="#ffff00">36</font>                 <font color="#ff40ff">THEN</font> PARENT.fullname + <font color="#ff6060">'\''</font>
+<font color="#ffff00">37</font>              <font color="#ff40ff">ELSE</font> <font color="#ff6060">''</font>
+<font color="#ffff00">38</font>           <font color="#ff40ff">END</font>
+<font color="#ffff00">39</font>           + INSERTED.name
+<font color="#ffff00">40</font>        <font color="#ff40ff">FROM</font> INSERTED, tree, TREE PARENT
+<font color="#ffff00">41</font>        <font color="#ff40ff">WHERE</font> INSERTED.ID = tree.ID
+<font color="#ffff00">42</font>        <font color="#ffff00">AND</font> INSERTED.PID *= PARENT.ID
+<font color="#ffff00">43</font>     <font color="#ff40ff">END</font>
+<font color="#ffff00">44</font>     <font color="#ff40ff">IF</font> (<font color="#ffff00">UPDATE</font> (fullname)) <font color="#ff40ff">BEGIN</font>
+<font color="#ffff00">45</font>        <font color="#ffff00">UPDATE</font> tree
+<font color="#ffff00">46</font>        <font color="#ffff00">SET</font> fullname = INSERTED.fullname + <font color="#ff6060">'\''</font> + tree.name
+<font color="#ffff00">47</font>        <font color="#ff40ff">FROM</font> tree, INSERTED
+<font color="#ffff00">48</font>        <font color="#ff40ff">WHERE</font> INSERTED.id = tree.pid
+<font color="#ffff00">49</font>     <font color="#ff40ff">END</font>
+<font color="#ffff00">50</font>  <font color="#ff40ff">END</font>
+<font color="#ffff00">51</font>  GO
+<font color="#ffff00">52</font>
+<font color="#ffff00">53</font>  <font color="#ffff00">SELECT</font> * <font color="#ff40ff">FROM</font> tree
+<font color="#ffff00">54</font>  GO
+<font color="#ffff00">55</font>
+<font color="#ffff00">56</font>  <font color="#ff40ff">BEGIN</font> TRANSACTION
+<font color="#ffff00">57</font>  GO
+<font color="#ffff00">58</font>  <font color="#ffff00">UPDATE</font> tree
+<font color="#ffff00">59</font>  <font color="#ffff00">SET</font> name = <font color="#ff6060">'base_root'</font>
+<font color="#ffff00">60</font>  <font color="#ff40ff">WHERE</font> name = <font color="#ff6060">'root'</font>
+<font color="#ffff00">61</font>  GO
+<font color="#ffff00">62</font>  <font color="#ffff00">SELECT</font> * <font color="#ff40ff">FROM</font> tree
+<font color="#ffff00">63</font>  GO
+<font color="#ffff00">64</font>  <font color="#ffff00">ROLLBACK</font> TRANSACTION
+<font color="#ffff00">65</font>  GO
+<font color="#ffff00">66</font>
+<font color="#ffff00">67</font>  <font color="#ff40ff">BEGIN</font> TRANSACTION
+<font color="#ffff00">68</font>  GO
+<font color="#ffff00">69</font>  <font color="#ffff00">UPDATE</font> tree
+<font color="#ffff00">70</font>  <font color="#ffff00">SET</font> name = <font color="#ff6060">'i386'</font>
+<font color="#ffff00">71</font>  <font color="#ff40ff">WHERE</font> name = <font color="#ff6060">'x86'</font>
+<font color="#ffff00">72</font>  GO
+<font color="#ffff00">73</font>  <font color="#ffff00">SELECT</font> * <font color="#ff40ff">FROM</font> tree
+<font color="#ffff00">74</font>  GO
+<font color="#ffff00">75</font>  <font color="#ffff00">ROLLBACK</font> TRANSACTION
+<font color="#ffff00">76</font>  GO
+<font color="#ffff00">77</font>
+<font color="#ffff00">78</font>  <font color="#ffff00">DROP</font> <font color="#ff40ff">TABLE</font> tree
+<font color="#ffff00">79</font>  GO
+</pre>
+</body>
+</html>

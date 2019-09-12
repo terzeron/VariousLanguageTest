@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="ch02.browser.perspective.PerspectiveFactory"
+            icon="icons/16-earth.png"
+            id="Web.Browser.Perspective"
+            name="Web Browser">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <category
+            id="WebBrowser"
+            name="Web Browsing">
+      </category>
+      <view
+            category="WebBrowser"
+            class="ch02.browser.views.BookMarksView"
+            icon="icons/16-earth.png"
+            id="ch02.browser.views.BookMarksView"
+            name="Bookmarks"
+            restorable="true">
+      </view>
+      <view
+            category="WebBrowser"
+            class="ch02.browser.views.WebBrowserView"
+            icon="icons/16-earth.png"
+            id="ch02.browser.views.WebBrowserView"
+            name="Web Browser"
+            restorable="true">
+      </view>
+   </extension>
+
+</plugin>

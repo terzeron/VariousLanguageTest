@@ -1,0 +1,297 @@
+<html>
+<head>
+	<link rel="stylesheet" href="http://threebit.net/style.css"/>
+	<title>Apache 2 Module Tutorial - Handling a Configuration Directive</title>
+</head>
+<body>
+
+<table cellspacing="0" width="100%" style="border: solid 1px #000000;">
+  <tr>
+    <td align="left">
+      <a href="http://threebit.net"><img alt="threebit.NET" border="0" src="http://threebit.net/logos/threebit.gif"></a>
+    </td>
+		<td width="100%" align="center" bgcolor="#f0f0f0" valign="center">
+			<font style="font: 26px Times New Roman;">Tutorial Two</font>
+			<br>
+			<nobr> [<a href="http://threebit.net">threebit.net</a>] </nobr>
+			<nobr> [<a href="../../index.html">tutorial home</a>] </nobr>
+    </td>
+  </tr>
+</table>
+
+<p>
+This tutorial guides the reader through the portions of the Apache API
+that are used by modules to control their configuration.  For the moment,
+we will introduce the handling of a single server-wide configuration
+directive.
+<p>
+This module builds on <a href="../tut1/tutorial1.html">Tutorial 1</a> by allowing
+the message that is written to the error log to be customized.  Again,
+this is a trivial task, but I hope that is makes for a clear example of how
+to use the API to perform a task, without confusing the topic by doing
+something actually usefull (that's left to you! haa ha!).
+
+<pre>
+# Throughout the tutorial, look for links to Apache's
+# LXR website <a href="http://lxr.webperf.org/">http://lxr.webperf.org/</a>
+# For example, clink on <b>AP_MODULE_DECLARE_DATA</b> below.
+module <a style="text-decoration: none;" href="http://lxr.webperf.org/ident.cgi?i=AP_MODULE_DECLARE_DATA">AP_MODULE_DECLARE_DATA</a> tut2_module;</pre>
+
+<h2>Preparation</h2>
+If you do not plan to compile and run the code presented here, you can skip this
+step.  Otherwise, complete the <a href="../tut1/tutorial1.html#preparation">preparation</a> step from
+<a href="../tut1/tutorial1.html">Tutorial One</a>.
+After doing so the following should be true:
+<p>
+
+<ul>
+	<li>The <b>$TUTORIAL_HOME</b> environment variable should be set to <b>$HOME/threebit-tutorials</b>.</li>
+	<li>Apache2 is installed in <b>$TUTORIAL_HOME/apache2</b>.</li>
+	<li>The module source code is in <b>$TUTORIAL_HOME/apache2_modules/tut2</b>.</li>
+</ul>
+
+<h2>mod_tut2.c</h2>
+
+The source code for this module is contained in one file
+(<a href="mod_tut2.c">source code</a>).  The other files
+included with <i>mod_tut2</i> were explained during
+Tutorial 1 and I will not duplicate their explanation here.
+Those portions of this module's source code that have not
+been changed since Tutorial 1 will also not be explained here.
+
+<pre>
+#ifndef DEFAULT_MODTUT2_STRING
+#define DEFAULT_MODTUT2_STRING "apache2_mod_tut2: A request was made."
+#endif</pre>
+
+Here we define the default string that will be written to
+the error log if the module has been loaded but
+the <i>ModuleTutorialString</i> configuration directive was
+not detected in <i>httpd.conf</i>.
+
+<pre>module <a style="text-decoration: none;" href="http://lxr.webperf.org/ident.cgi?i=AP_MODULE_DECLARE_DATA">AP_MODULE_DECLARE_DATA</a> tut2_module;</pre>
+
+The <i>AP_MODULE_DECLARE_DATA</i> macro is used by a module
+to declare itself to the httpd core.  The apache convention
+for naming the identifier is to use <b><i>UNIQUE_NAME</i>-module</b>.
+That said, most people refer to a module by the reverse - hence,
+I call this module <i>mod_tut2</i>.  I haven't been around long enough
+to know why this developed but somehow it did.  In case you don't
+believe me,
+<a href="http://httpd.apache.org/docs-2.0/mod/mod_autoindex.html">Auto Index</a>
+is called <i>mod_autoindex</i>, but it's module identifier is <i>autoindex_module</i>.
+
+<pre>
+typedef struct {
+  char *string;
+} modtut2_config;</pre>
+
+We will need to store the customizable string somewhere - this struct will be
+used to do so.  It is silly to use a struct to hold a single string but we may
+as well start of with a struct because it won't be long until our module needs
+a richer configuration.
+
+<pre>
+static void *create_modtut2_config(<a style="text-decoration: none;" href="http://lxr.webperf.org/ident.cgi?i=apr_pool_t">apr_pool_t</a> *p, <a style="text-decoration: none;" href="http://lxr.webperf.org/ident.cgi?i=server_rec">server_rec</a> *s)
+{
+  // This module's configuration structure.
+  modtut2_config *newcfg;
+
+  // Allocate memory from the provided pool.
+  newcfg = (modtut2_config *) <a style="text-decoration: none;" href="http://lxr.webperf.org/ident.cgi?i=apr_pcalloc">apr_pcalloc</a>(p, sizeof(modtut2_config));
+
+  // Set the string to a default value.
+  newcfg->string = DEFAULT_MODTUT2_STRING;
+
+  // Return the created configuration struct.
+  return (void *) newcfg;
+}</pre>
+
+This function will be called once by the httpd core to create the initial
+module configuration.  This is accomplished by allocating space for the
+struct from the provided <i>apr_pool_t</i>.  A <i>malloc</i> function
+provided by APR is used so that it is impossible to leak memory during
+Apache's runtime - in other words, this module does not need to worry
+about freeing any memory in the future because when the pool is released,
+the memory allocated to this module's configuration is also automatically
+released.  This pattern is used extensively throughout Apache.
+
+<pre>
+static const <a style="text-decoration: none;" href="http://lxr.webperf.org/source.cgi/include/http_config.h#L227">command_rec</a> mod_tut2_cmds[] =
+{
+  <a style="text-decoration: none;" href="http://lxr.webperf.org/ident.cgi?i=AP_INIT_TAKE1">AP_INIT_TAKE1</a>(
+    "ModuleTutorialString",
+    set_modtut2_string,
+    NULL,
+    <a style="text-decoration: none;" href="http://lxr.webperf.org/ident.cgi?i=RSRC_CONF">RSRC_CONF</a>,
+    "ModTut2String (string) The error_log string."
+  ),
+  {NULL}
+};</pre>
+
+This httpd core is responsible for reading and parsing the <i>httpd.conf</i>
+configuration file.  By default, Apache knows how to handle the default
+configuration directives.  The array of <i>command_rec</i> structures above
+is passed to the httpd core by this module to declare a new configuration
+directive.
+
+<p>
+<b><a href="http://lxr.webperf.org/ident.cgi?i=AP_INIT_TAKE1">AP_INIT_TAKE1</a></b>
+- This macro declares a configuration directive that takes only one argument.
+The httpd core will take care of guaranteeing that the configuration is valid
+(a minimum and maximum of one argument) before bothering to call the provided
+function.  This reduces alot of duplication within each module.  There are several
+options here depending on the purpose of the configuration directive
+(AP_INIT_NO_ARGS, AP_INIT_RAW_ARGS, AP_INIT_TAKE2, etc etc).
+<p>
+<b>"ModuleTutorialString"</b>
+- The configuration directive that may now appear in <i>httpd.conf</i>.  I
+haven't looked it up, but I imagine there is a best-practices guide for
+creating configuration directives.
+<p>
+<b>set_modtut2_string</b>
+- This is the function that will be called by the httpd core when the
+configuration directive is detected (assuming it is properly formatted.
+This function is covered in detail below.
+<p>
+<b>NULL</b>
+- I don't know what this is for yet. :)
+<p>
+<b>RSRC_CONF</b>
+- This field is used to state where the configuration directive may appear.
+By using RSRC_CONF we have stated that it can only appear <i>outside</i> of a
+&lt;Directive&gt; or &lt;Location&gt; scope.  I *think* that means it
+can only be used globally, but you should confirm that.
+<p>
+<b>Usage Message</b>
+- In case of syntax errors, the httpd core will return this message to the user.
+<p>
+<b>{NULL}</b>
+- This is just a null placeholder in the array of <i>command_rec</i> structs.
+It is used to signal the end of new configuration directives.
+
+<pre>
+static const char *set_modtut2_string(<a style="text-decoration: none;" href="http://lxr.webperf.org/source.cgi/include/http_config.h#L299">cmd_parms</a> *parms,
+  void *mconfig, const char *arg)
+{
+  modtut2_config *s_cfg = <a style="text-decoration: none;" href="http://lxr.webperf.org/ident.cgi?i=ap_get_module_config">ap_get_module_config</a>(
+    parms->server->module_config, &tut2_module);
+
+  s_cfg->string = (char *) arg;
+
+  return NULL;
+}</pre>
+
+This function will be called by the httpd core when the configuration directive
+we specify later on is encountered in httpd.conf.  Notice that it does not
+<i>malloc</i> space to hold the new configuration.  Instead, the
+<a href="http://lxr.webperf.org/ident.cgi?i=ap_get_module_config">ap_get_module_config</a>
+function is used to obtain it - somehow the httpd core will end up calling
+</i>create_modtut2_config</i> for us if it hasn't already.
+
+<p>
+
+Once the configuration has been obtained, we set the value of the
+string member to that of the provided argument.  We do not need to
+make a copy of the argument because it is safe to use as is (I
+read that in the source somewhere, but I have lost the reference
+to it.)
+
+<p>
+
+Finally, we return NULL for success.  We could have returned a (char*)
+containing an error message; httpd will return the string to the user
+in such a case.
+
+<pre>
+static int mod_tut2_method_handler (<a style="text-decoration: none;" href="http://lxr.webperf.org/source.cgi/include/httpd.h#L707">request_rec</a> *r)
+{
+  // Get the module configuration
+  modtut2_config *s_cfg = <a style="text-decoration: none;" href="http://lxr.webperf.org/ident.cgi?i=ap_get_module_config">ap_get_module_config</a>(
+    r->server->module_config, &tut2_module);
+
+  // Send a message to the log file.
+  fprintf(stderr,s_cfg->string);
+
+  // [deleted - trying to be brief]
+}</pre>
+
+And finally, the real workhorse.  This function is called for each HTTP
+request.  Again, we use <a href="http://lxr.webperf.org/ident.cgi?i=ap_get_module_config">ap_get_module_config</a>
+to obtain the module configuration, though this time we do so by
+referencing it from the request record.  The configured string is written
+to the error_log stream.
+
+<pre>
+module <a style="text-decoration: none;" href="http://lxr.webperf.org/ident.cgi?i=AP_MODULE_DECLARE_DATA">AP_MODULE_DECLARE_DATA</a> tut2_module =
+{
+  <a style="text-decoration: none;" href="http://lxr.webperf.org/ident.cgi?i=STANDARD20_MODULE_STUFF">STANDARD20_MODULE_STUFF</a>,
+  NULL,
+  NULL,
+  create_modtut2_config,
+  NULL,
+  mod_tut2_cmds,
+  mod_tut2_register_hooks,
+};</pre>
+
+And now we make another call to <a href="http://lxr.webperf.org/ident.cgi?i=AP_MODULE_DECLARE_DATA">AP_MODULE_DECLARE_DATA</a>
+to re-declare the module along with more information.  This time around we
+provide two more details:
+<p>
+<b>create_modtut2_config</b>
+- Here we tell the httpd core what function should be called when the module configuration
+data needs to be created/allocated.
+<p>
+<b>mot_tut2_cmds</b>
+- Here we pass in the list of new configuration directives.
+<p>
+<b>mod_tut2_register_hooks</b> and <b>STANDARD20_MODULE_STUFF</b> are unchanged
+from the previous module.
+
+<h2>Compile, Install, Run</h2>
+
+Now it is time to compile and install the module.  See the previous
+tutorial for an explanation of what's going on here.
+
+<pre>
+cd $TUTORIAL_HOME/apache2_modules/tut2
+aclocal
+autoconf
+automake -a
+./configure --with-apache=$TUTORIAL_HOME/apache2
+make
+$TUTORIAL_HOME/apache2/bin/apxs -i -a -n tut2 libmodtut2.la
+</pre>
+
+This module has not been installed.  You may want to confirm
+that only <i>mod_tut2</i> is enabled if you ran <i>mod_tut1</i>
+previously.
+
+<pre>
+# LoadModule tut1_module        modules/libmodtut1.so
+LoadModule tut2_module        modules/libmodtut2.so</pre>
+
+Also, if you want to customize the string then
+add the <i>ModuleTutorialString</i> directive to httpd.conf too.
+The last line in httpd.conf should be okay for this.
+
+<pre>ModuleTutorialString "You need to put quotes around multiple words."</pre>
+
+Restart Apache so mod_tut2 get's loaded.  It's always a good idea
+to check the configuration first too.
+
+<pre>
+# check the configuration then restart apache
+cd $TUTORIAL_HOME/apache2
+bin/apachectl configtest
+bin/apachectl stop
+bin/apachectl start
+# make a request to cause a message to be written
+lynx --source http://localhost:21000 | grep success
+# look for the message in the error log.
+tail -100l logs/error_log </pre>
+
+<p>
+$Id: tutorial2.html,v 1.7 2002/10/28 07:24:08 kevino Exp $
+</body>
+</html>

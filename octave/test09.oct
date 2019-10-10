@@ -1,0 +1,5 @@
+axis([1, 2, 3, 4], "square");
+
+axis("labely", "tic");
+
+plot3(eye(3))

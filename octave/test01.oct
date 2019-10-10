@@ -1,0 +1,11 @@
+#!/usr/bin/octave -q
+
+A = [ 1, 1, 2; 3, 5, 8; 13, 21, 34 ]
+B = rand(3, 2)
+B
+2 * A
+A * B
+
+# A' means transpos(A)
+A' * A
+

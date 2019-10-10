@@ -1,0 +1,46 @@
+V "GNAT Lib v4.2"
+M P W=b
+P SS ZX
+R nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+
+U hello_3%b		hello_3.adb		40c1db15 NE SU
+W hello%b		hello.adb		hello.ali
+
+D ada.ads		20070704142157 9c7dd3ea
+D a-except.ads		20070704142157 d9ccb28d
+D a-finali.ads		20070704142159 2f48e141
+D a-filico.ads		20070704142159 9299732a
+D a-ioexce.ads		20070704142159 be0900a0
+D a-stream.ads		20070704142157 74337d1b
+D a-tags.ads		20070704142158 81dd2f9c
+D a-tags.adb		20070704142158 9bcd7865
+D a-textio.ads		20070704142159 bc58c967
+D hello.adb		20080416133838 5724ad4d
+D hello_3.adb		20080416151018 17e57658
+D interfac.ads		20070704142158 a69cad5c
+D i-cstrea.ads		20070704142158 85085d90
+D system.ads		20080302035617 07429f6d
+D s-crtl.ads		20070704142158 d74e5b9d
+D s-exctab.ads		20070704142159 e14b1567
+D s-ficobl.ads		20070704142159 ed792749
+D s-finimp.ads		20070704142159 33c39bf7
+D s-finroo.ads		20070704142158 6f410d48
+D s-htable.ads		20070704142159 9598cfa4
+D s-parame.ads		20070704142158 6bd7b874
+D s-secsta.ads		20070704142157 db466d0c
+D s-soflin.ads		20070704142157 677820d8
+D s-stache.ads		20070704142159 07e06d0a
+D s-stalib.ads		20070704142159 99eda53f
+D s-stoele.ads		20070704142159 f7e9ab3e
+D s-stoele.adb		20070704142159 a397f9ca
+D s-stratt.ads		20070704142159 63715cfd
+D s-traent.ads		20070704142157 9950c76b
+D s-unstyp.ads		20070704142158 b399198a
+D s-wchcon.ads		20070704142158 1705b980
+D s-wchstw.ads		20070704142159 6b782940
+D unchconv.ads		20070704142159 34860a55
+X 10 hello.adb
+3U11*Hello 11|1w6 4r4 5r4 6r4
+X 11 hello_3.adb
+2U11*Hello_3 2b11 7l5 7t12
+

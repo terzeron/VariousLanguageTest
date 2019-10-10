@@ -1,0 +1,72 @@
+V "GNAT Lib v4.2"
+M P W=b
+P SS ZX
+R nnnnnnvnnnnnnnnnnnnvnvnvnnnnnnnnnnvnvnvnnnvnvnnnnnnnnnnnnnnnnnnnnv1+nnnnnn
+
+U tasking_example%b	tasking_example.adb	b3448a69 NE SU
+W ada%s			ada.ads			ada.ali
+W ada.calendar.delays%s	a-caldel.adb		a-caldel.ali
+W ada.text_io%s		a-textio.adb		a-textio.ali
+W system%s		system.ads		system.ali
+W system.img_int%s	s-imgint.adb		s-imgint.ali
+W system.parameters%s	s-parame.adb		s-parame.ali
+W system.secondary_stack%s  s-secsta.adb	s-secsta.ali
+W system.soft_links%s	s-soflin.adb		s-soflin.ali
+W system.task_info%s	s-tasinf.adb		s-tasinf.ali
+W system.tasking%s	s-taskin.adb		s-taskin.ali
+W system.tasking.stages%s  s-tassta.adb		s-tassta.ali
+
+D ada.ads		20070704142157 9c7dd3ea
+D a-calend.ads		20070704142158 979f5d2f
+D a-caldel.ads		20070704142158 c565f6eb
+D a-except.ads		20070704142157 d9ccb28d
+D a-finali.ads		20070704142159 2f48e141
+D a-filico.ads		20070704142159 9299732a
+D a-ioexce.ads		20070704142159 be0900a0
+D a-stream.ads		20070704142157 74337d1b
+D a-tags.ads		20070704142158 81dd2f9c
+D a-tags.adb		20070704142158 9bcd7865
+D a-textio.ads		20070704142159 bc58c967
+D interfac.ads		20070704142158 a69cad5c
+D i-c.ads		20070704142159 bc3ef662
+D i-cstrea.ads		20070704142158 85085d90
+D system.ads		20080302035617 07429f6d
+D s-atacco.ads		20070704142158 60789a20
+D s-crtl.ads		20070704142158 d74e5b9d
+D s-exctab.ads		20070704142159 e14b1567
+D s-ficobl.ads		20070704142159 ed792749
+D s-finimp.ads		20070704142159 33c39bf7
+D s-finroo.ads		20070704142158 6f410d48
+D s-htable.ads		20070704142159 9598cfa4
+D s-imgint.ads		20070704142159 8222338e
+D s-osinte.ads		20070704142157 55fd3d67
+D s-parame.ads		20070704142158 6bd7b874
+D s-secsta.ads		20070704142157 db466d0c
+D s-soflin.ads		20070704142157 677820d8
+D s-stache.ads		20070704142159 07e06d0a
+D s-stausa.ads		20070704142159 5ff74994
+D s-stalib.ads		20070704142159 99eda53f
+D s-stoele.ads		20070704142159 f7e9ab3e
+D s-stoele.adb		20070704142159 a397f9ca
+D s-stratt.ads		20070704142159 63715cfd
+D s-tasinf.ads		20070704142158 0891d67c
+D s-taspri.ads		20070704142159 5ce832d1
+D s-taskin.ads		20070704142159 63978922
+D s-tassta.ads		20070704142159 2435ba65
+D s-traent.ads		20070704142157 9950c76b
+D s-unstyp.ads		20070704142158 b399198a
+D s-wchcon.ads		20070704142158 1705b980
+D s-wchstw.ads		20070704142159 6b782940
+D tasking_example.adb	20080416141519 0f1c430e
+D unchconv.ads		20070704142159 34860a55
+X 1 ada.ads
+16K9*Ada 19e8 42|1r6 12r10 17r7
+X 11 a-textio.ads
+49K13*Text_IO 451e16 42|1w10 12r14 17r11
+264U14*Put_Line 42|12r22 17r19
+X 42 tasking_example.adb
+2U11*Tasking_Example 2b11 23l5 23t20
+3b4 Finished{boolean} 4r18 11r17 22m4
+6t9 Outputter 8b14 18l8 18t17
+9i7 Count{integer} 12r45 13m10 13r19
+

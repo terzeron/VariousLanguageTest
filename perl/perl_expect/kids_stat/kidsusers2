@@ -1,0 +1,54 @@
+#!/usr/bin/expect --
+
+set login_id "terzeron"
+stty -echo
+set passwd "micro575"
+stty echo
+puts "\r"
+set nick ""
+set hangul ""
+set term ""
+set boardname "CnUnix"
+
+spawn ssh kids@kids.kornet.net
+trap { puts "TELNET CLOSED.\r"; exit } SIGCHLD
+
+proc login { loginname password nick hangul term boardname} {
+	# for telnet connection
+	#expect "login: kids" { send "kids\r" }
+	
+	# for ssh connection
+	expect "사용자명(User  Id): " { send "$loginname\r" }
+	if {$loginname=="guest"} {
+		# guest 인 경우 다르게...
+		expect "I Am" {send "$nick\r"}
+		expect "Y / n" {send "$hangul\r"}
+		expect "dumb" {send "$term\r"}
+	} else {
+		# 일반 유저인 경우 ...
+		expect "비밀번호(Password):" { send "$password\r" }
+	}
+	expect -re "이전글" { send "\r" }
+	expect -re "Kids 종료" { send "a\r" }
+	expect -re "H :도움" { send "u\r" }
+	
+	send "\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r"
+	send "\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r"
+	send "\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r"
+	send "\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r"
+	send "\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r"
+	send "\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r"
+	send "\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r"
+	send "\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r"
+	send "\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r"
+	send "\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r"
+	send "\r\rqq\ry"
+
+
+	return 0;
+}
+
+set timeout -1
+login $login_id $passwd $nick $hangul $term $boardname
+interact
+eract

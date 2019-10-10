@@ -1,0 +1,14 @@
+#!/usr/bin/octave -q
+
+clc()
+
+home()
+
+#help
+
+doc lookfor
+
+#lookfor info_file
+
+#x = info_file()
+

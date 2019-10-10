@@ -1,0 +1,60 @@
+V "GNAT Lib v4.2"
+M P W=b
+P SS ZX
+R nnnnnnnnnnnnnnnnnnnnnvnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+
+U sum%b			sum.adb			0fe33f32 NE SU
+W ada%s			ada.ads			ada.ali
+W ada.integer_text_io%s	a-inteio.ads		a-inteio.ali
+W ada.text_io%s		a-textio.adb		a-textio.ali
+
+D ada.ads		20070704142157 9c7dd3ea
+D a-except.ads		20070704142157 d9ccb28d
+D a-finali.ads		20070704142159 2f48e141
+D a-filico.ads		20070704142159 9299732a
+D a-inteio.ads		20070704142159 03bc737c
+D a-ioexce.ads		20070704142159 be0900a0
+D a-stream.ads		20070704142157 74337d1b
+D a-tags.ads		20070704142158 81dd2f9c
+D a-tags.adb		20070704142158 9bcd7865
+D a-textio.ads		20070704142159 bc58c967
+D a-tiinio.ads		20070704142158 949a7272
+D interfac.ads		20070704142158 a69cad5c
+D i-cstrea.ads		20070704142158 85085d90
+D sum.adb		20080416152343 b0078529
+D system.ads		20080302035617 07429f6d
+D s-crtl.ads		20070704142158 d74e5b9d
+D s-exctab.ads		20070704142159 e14b1567
+D s-ficobl.ads		20070704142159 ed792749
+D s-finimp.ads		20070704142159 33c39bf7
+D s-finroo.ads		20070704142158 6f410d48
+D s-htable.ads		20070704142159 9598cfa4
+D s-parame.ads		20070704142158 6bd7b874
+D s-secsta.ads		20070704142157 db466d0c
+D s-soflin.ads		20070704142157 677820d8
+D s-stache.ads		20070704142159 07e06d0a
+D s-stalib.ads		20070704142159 99eda53f
+D s-stoele.ads		20070704142159 f7e9ab3e
+D s-stoele.adb		20070704142159 a397f9ca
+D s-stratt.ads		20070704142159 63715cfd
+D s-traent.ads		20070704142157 9950c76b
+D s-unstyp.ads		20070704142158 b399198a
+D s-wchcon.ads		20070704142158 1705b980
+D s-wchstw.ads		20070704142159 6b782940
+D unchconv.ads		20070704142159 34860a55
+X 1 ada.ads
+16K9*Ada 19e8 14|1r6 1r19 2r5 2r18
+X 5 a-inteio.ads
+18K13*Integer_Text_IO[11|47] 14|1w23 2r22
+X 10 a-textio.ads
+49K13*Text_IO 451e16 14|1w10 2r9
+167U14*New_Line 14|12r4
+243U14*Put 14|7r4 10r4
+X 11 a-tiinio.ads
+57U14*Get 14|8r4[5|18] 9r4[5|18]
+67U14*Put 14|11r4[5|18]
+X 14 sum.adb
+4U11*Sum 4b11 13l5 13t8
+5i4 First{integer} 8m8 11r8
+5i11 Second{integer} 9m8 11r16
+

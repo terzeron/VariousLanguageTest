@@ -1,0 +1,6 @@
+#!/usr/bin/octave
+
+x = 0:2;
+y = x;
+z = x' * y;
+contour(x, y, z, 2:3)

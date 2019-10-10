@@ -1,0 +1,17 @@
+-module(temp1).
+-export([temperatureConverter/0]).
+
+temperatureConverter() ->
+  receive
+    {toF, C} ->
+      From ! io:format("~p C is ~p F~n", [C, 32+C*9/5]),
+      temperatureConverter();
+    {toC, F} ->
+      io:format("~p F is ~p C~n", [F, (F-32)*5/9]),
+      temperatureConverter();
+    {stop} ->
+      io:format("stopping~n");
+    Other ->
+      io:format("Unknown: ~p~n", [Other]),
+      temperatureConverter()
+end.

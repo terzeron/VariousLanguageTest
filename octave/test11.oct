@@ -1,0 +1,17 @@
+#!/usr/bin/octave 
+
+t=0:0.1:6.0
+
+multiplot(2,2)
+
+subwindow(1,1)
+plot(t, cos(t))
+
+subwindow(1, 2)
+plot(t, sin(t))
+
+subwindow(2, 1)
+plot(t, tan(t))
+
+subwindow(2, 2)
+plot(t, tanh(t))

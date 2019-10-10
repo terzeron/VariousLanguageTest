@@ -1,0 +1,10 @@
+
+	send "qq\ry"
+	return 0;
+}
+
+set timeout -1 
+login $login_id $passwd $nick $hangul $term $boardname
+set timeout -1
+interact
+

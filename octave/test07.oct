@@ -1,0 +1,20 @@
+#!/usr/bin/octave 
+
+x = 1:10;
+stem(x);
+
+x = 1:10;
+y = ones(1, length(x))*2.*x;
+stem(x, y);
+
+x = 1:10;
+y = ones(size(x))*2.*x;
+h = stem(x, y, "b"); # blue 
+
+x = 1:10;
+y = ones(size(x))*2.*x;
+h = stem(x, y, "-.k") # black
+
+x = 1:10;
+y = ones(size(x))*2.*x;
+h = stem(x, y, "fill");

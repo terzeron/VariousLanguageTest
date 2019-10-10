@@ -1,0 +1,7 @@
+#!/usr/bin/octave -q
+
+function bye_bye()
+  disp("Bye bye")
+endfunction
+
+atexit("bye_bye")

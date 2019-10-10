@@ -1,0 +1,18 @@
+V "GNAT Lib v4.2"
+M P W=b
+P ZX
+R nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+
+U gmain%b		gmain.adb		d100e175 NE SU
+W greetings%s		greetings.adb		greetings.ali
+
+D gmain.adb		20080416134455 b44c45f7
+D greetings.ads		20080416134415 654ca482
+D system.ads		20080302035617 07429f6d
+X 1 gmain.adb
+2U11*Gmain 2b11 6l5 6t10
+X 2 greetings.ads
+1K9*Greetings 1|1w6 4r4 5r4 2|4e14
+2U14*Hello 1|4r14
+3U14*Goodbye 1|5r14
+

@@ -1,0 +1,14 @@
+! Set initial size of application
+*XmMainWindow.width:	200
+! Frame will be bigger than application, thus requiring scrollbars
+*XmFrame.width:	300
+*XmFrame.height:	300
+! Make MainWindow display scrollbars and use them to pan around in the frame.
+*XmMainWindow.scrollingPolicy:	XmAUTOMATIC
+
+*helpBox.messageString:	This is help text.\n\
+But it is only a few words.\n\
+If you really need help,\n\
+I'm afraid you'll have to read the manual.
+! The following used if the window manager titles the dialog.
+*helpBox.dialogTitle:	Help

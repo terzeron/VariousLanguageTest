@@ -1,0 +1,21 @@
+! resource is composed with followings,
+! xapplication_name.xwidget_instance.resource_name
+! Any name can be "*".
+
+!
+! Core resources
+!
+xhello*width:	300
+xhello*height:	100
+xhello*foreground:	blue
+xhello*background:	white
+! 
+! Label resources
+!
+xhello.hello.labelString:	Hello,ÇÑ±ÛWorld!
+xhello*XmNalignment:	XmALIGNMENT_CENTER
+xhello*XmNforeground:	XmForegroundColorDefault
+xhello*XmNhighlightOnEnter:	True
+xhello*XmNfontList:	-ksg-gtr-medium-r-normal--12-110-75-75-c-120-ksc5601.1987-0
+xhello*XmNmarginHeight:	2
+xhello*XmNmarginWidth:	2

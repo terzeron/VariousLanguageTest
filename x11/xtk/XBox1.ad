@@ -1,0 +1,30 @@
+!
+! Core resource
+!
+! xbox1*background is overridden with xbox1*rowColumn*background.
+xbox1*foreground: 	purple
+xbox1*background:	green
+!
+! Label resource
+!
+xbox1*rowColumn*background:	violet
+xbox1*XmBorderColor:	azure1
+xbox1*XmBorderWidth:	1
+xbox1*pressme*XmNforeground:	red
+xbox1*pressme.labelString:	Press Me
+xbox1*quit*XmNforeground:	white
+xbox1*quit*XmNbackground:	orange
+xbox1*quit.background:	orange
+xbox1*quit.labelString:	Quit
+xbox1*XmPushButton.fontList:	variable
+xbox1*XmRowColumn*background:	green4
+!
+! noticable
+!
+*Command.background:	orange
+*quit.label:	quit
+*pressme.label:	Press me
+*pressme.leftAttachment:	XmATTACH_WIDGET
+*pressme.leftWidget:	quit
+!*rowColumn.packing:	XmPACK_TIGHT
+!*rowColumn.orientation:	XmHORIZONTAL

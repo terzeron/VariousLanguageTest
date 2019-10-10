@@ -1,0 +1,21 @@
+! Core Resources
+!
+! The following two lines don't work, but demonstrate a point
+*goodbye.x: 100
+*goodbye.y: 100
+! Even through the following specification syntatically applies to 
+! all widgets in the application, and all windows have borders, the
+! borderWidth resource value is only used by certain widgets.
+! Pushbutton is not one of them, so this instruction is ignored.
+*borderWidth: 10
+!
+*goodbye.width: 250
+*goodbye.height: 100
+*goodbye.alignment: XmALIGNMENT_CENTER
+!*goodbye.alignment: XmALIGNMENT_END
+!
+! Label resource
+*goodbye.foreground: red
+*goodbye.background: white
+*goodbye.fontList: *courier-bold*180*iso8859-1
+*goodbye.labelString: Click on me.
